@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import codecs
+import chardet
 import logging
 import pkg_resources
 from os.path import abspath
@@ -161,11 +162,20 @@ class CodeWriter(object):
         run.font.size = Pt(self.font_size)
         return self
 
+    def detect_encoding(self, file_path):
+        with open(file_path, 'rb') as file:
+            raw_data = file.read()
+        result = chardet.detect(raw_data)
+        return result['encoding']
+
     def write_file(self, file):
         """
         把单个文件添加到程序文档里面
         """
-        with codecs.open(file, encoding='utf-8') as fp:
+        #print(file)
+        encoding = self.detect_encoding(file)
+        #print(encoding)
+        with codecs.open(file, encoding=encoding) as fp:
             for line in fp:
                 line = line.rstrip()
                 if self.is_blank_line(line):
